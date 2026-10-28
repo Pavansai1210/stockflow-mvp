@@ -1,0 +1,40 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}StockFlow{% endblock %} | StockFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'inventory/style.css' %}">
+  <script src="{% static 'inventory/app.js' %}" defer></script>
+</head>
+<body>
+{% if user.is_authenticated %}
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="{% url 'dashboard' %}">StockFlow</a>
+      <nav aria-label="Main">
+        <a href="{% url 'dashboard' %}" {% if request.path == '/' %}aria-current="page"{% endif %}>Dashboard</a>
+        <a href="{% url 'product_list' %}" {% if '/products' in request.path %}aria-current="page"{% endif %}>Products</a>
+        <a href="{% url 'settings' %}" {% if request.path == '/settings/' %}aria-current="page"{% endif %}>Settings</a>
+      </nav>
+      <div class="account">
+        <span class="org">{{ user.profile.organization.name }}</span>
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button class="link-btn" type="submit">Log out</button>
+        </form>
+      </div>
+    </div>
+  </header>
+{% endif %}
+<main class="page{% if not user.is_authenticated %} narrow{% endif %}">
+  {% for message in messages %}
+    <div class="notice notice-{{ message.tags }}" role="status">{{ message }}</div>
+  {% endfor %}
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>

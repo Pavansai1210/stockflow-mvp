@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Products{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Products</h1>
+  <a class="btn" href="{% url 'product_create' %}">Add product</a>
+</div>
+
+<form method="get" action="{% url 'product_list' %}" class="search" role="search">
+  <label class="sr-only" for="q">Search by name or SKU</label>
+  <input id="q" type="search" name="q" value="{{ q }}" placeholder="Search by name or SKU">
+  <button class="btn btn-quiet" type="submit">Search</button>
+  {% if q %}<a href="{% url 'product_list' %}">Clear</a>{% endif %}
+</form>
+
+{% if products %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th><th>SKU</th><th class="num">Quantity</th>
+          <th>Stock</th><th class="num">Selling price</th><th><span class="sr-only">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in products %}
+          <tr {% if p.quantity <= p.threshold %}class="is-low"{% endif %}>
+            <td><a href="{% url 'product_edit' p.pk %}">{{ p.name }}</a></td>
+            <td class="sku">{{ p.sku }}</td>
+            <td class="num">{{ p.quantity }}</td>
+            <td>
+              {% if p.quantity <= p.threshold %}<span class="tag tag-low">Low stock</span>
+              {% else %}<span class="tag tag-ok">In stock</span>{% endif %}
+            </td>
+            <td class="num">{% if p.selling_price is not None %}{{ p.selling_price|floatformat:2 }}{% else %}&mdash;{% endif %}</td>
+            <td class="actions">
+              <a href="{% url 'product_edit' p.pk %}">Edit</a>
+              <form method="post" action="{% url 'product_delete' p.pk %}"
+                    data-confirm="Delete {{ p.name }}? This cannot be undone.">
+                {% csrf_token %}
+                <button class="link-btn danger" type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="hint">{{ products|length }} product{{ products|length|pluralize }}{% if q %} matching "{{ q }}"{% endif %}</p>
+{% else %}
+  <div class="empty">
+    {% if q %}
+      <p>No products match "{{ q }}". Check the spelling or search by SKU.</p>
+    {% else %}
+      <p>You have no products yet. Add one to start tracking stock.</p>
+      <a class="btn" href="{% url 'product_create' %}">Add product</a>
+    {% endif %}
+  </div>
+{% endif %}
+{% endblock %}

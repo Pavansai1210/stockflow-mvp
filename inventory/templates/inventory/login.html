@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Log in{% endblock %}
+{% block content %}
+<h1>Log in</h1>
+<p class="lede">Pick up where you left off.</p>
+{% include "inventory/_form_errors.html" %}
+<form method="post" class="stack" novalidate>
+  {% csrf_token %}
+  {% for field in form %}{% include "inventory/_field.html" %}{% endfor %}
+  <button class="btn" type="submit">Log in</button>
+</form>
+<p class="aside">New here? <a href="{% url 'signup' %}">Create an account</a></p>
+{% endblock %}

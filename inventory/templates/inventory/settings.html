@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<h1>Settings</h1>
+{% include "inventory/_form_errors.html" %}
+<form method="post" class="stack" novalidate>
+  {% csrf_token %}
+  {% for field in form %}{% include "inventory/_field.html" %}{% endfor %}
+  <button class="btn" type="submit">Save settings</button>
+</form>
+{% endblock %}

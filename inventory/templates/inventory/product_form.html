@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{% if product %}Edit product{% else %}Add product{% endif %}{% endblock %}
+{% block content %}
+<p class="crumb"><a href="{% url 'product_list' %}">Products</a></p>
+<h1>{% if product %}Edit product{% else %}Add product{% endif %}</h1>
+{% include "inventory/_form_errors.html" %}
+
+<form method="post" class="grid-form" novalidate>
+  {% csrf_token %}
+  {% for field in form %}{% include "inventory/_field.html" %}{% endfor %}
+  <div class="span-2 form-actions">
+    <button class="btn" type="submit">{% if product %}Save changes{% else %}Add product{% endif %}</button>
+    <a href="{% url 'product_list' %}">Cancel</a>
+  </div>
+</form>
+
+{% if product %}
+  <section class="panel">
+    <h2>Adjust stock</h2>
+    <p class="hint">Currently <strong>{{ product.quantity }}</strong> on hand. Use a positive number to add units and a negative number to remove them.</p>
+    <form method="post" action="{% url 'product_adjust' product.pk %}" class="inline-form">
+      {% csrf_token %}
+      <label>Units (+/-)
+        <input type="number" name="delta" step="1" placeholder="e.g. -3" required>
+      </label>
+      <label class="grow">Note
+        <input type="text" name="note" maxlength="200" placeholder="Optional, e.g. Damaged in transit">
+      </label>
+      <button class="btn btn-quiet" type="submit">Apply</button>
+    </form>
+    {% if product.last_note %}<p class="hint">Last note: {{ product.last_note }}</p>{% endif %}
+    <p class="hint">Last updated {{ product.updated_at|date:"j M Y" }}.</p>
+  </section>
+{% endif %}
+{% endblock %}

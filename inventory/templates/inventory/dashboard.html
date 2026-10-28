@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Dashboard</h1>
+  <a class="btn" href="{% url 'product_create' %}">Add product</a>
+</div>
+
+<section class="figures" aria-label="Inventory summary">
+  <div class="figure">
+    <span class="figure-num">{{ totals.products }}</span>
+    <span class="figure-label">Products</span>
+  </div>
+  <div class="figure">
+    <span class="figure-num">{{ totals.units }}</span>
+    <span class="figure-label">Units on hand</span>
+  </div>
+  <div class="figure {% if low_count > 0 %}figure-low{% endif %}">
+    <span class="figure-num">{{ low_count }}</span>
+    <span class="figure-label">Low stock</span>
+  </div>
+</section>
+
+<section>
+  <h2>Low stock items</h2>
+  {% if totals.products == 0 %}
+    <div class="empty">
+      <p>No products yet. Add your first product and it will show up here when stock runs low.</p>
+      <a class="btn" href="{% url 'product_create' %}">Add product</a>
+    </div>
+  {% elif low_count == 0 %}
+    <div class="empty"><p>Nothing is running low. Every product is above its threshold.</p></div>
+  {% else %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Name</th><th>SKU</th><th class="num">Quantity on hand</th><th class="num">Low stock threshold</th></tr>
+        </thead>
+        <tbody>
+          {% for p in low_items %}
+            <tr class="is-low">
+              <td><a href="{% url 'product_edit' p.pk %}">{{ p.name }}</a></td>
+              <td class="sku">{{ p.sku }}</td>
+              <td class="num">{{ p.quantity }}</td>
+              <td class="num">{{ p.threshold }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if low_count > 50 %}
+      <p class="hint">Showing the 50 most urgent of {{ low_count }} low stock products.</p>
+    {% endif %}
+  {% endif %}
+</section>
+{% endblock %}
